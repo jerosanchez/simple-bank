@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	"github.com/jerosanchez/simplebank/util"
@@ -42,6 +43,18 @@ func TestUpdateAccount(t *testing.T) {
 	require.Equal(t, updatedAccount.Balance, arg.Balance)
 	require.Equal(t, updatedAccount.Currency, account.Currency)
 	require.Equal(t, updatedAccount.CreatedAt, account.CreatedAt)
+}
+
+func TestDeleteAccount(t *testing.T) {
+	account := createRandomAccount(t)
+
+	err := testQueries.DeleteAccount(context.Background(), account.ID)
+	require.NoError(t, err)
+
+	deletedAccount, err := testQueries.GetAccount(context.Background(), account.ID)
+	require.NotNil(t, err)
+	require.EqualError(t, err, sql.ErrNoRows.Error())
+	require.Empty(t, deletedAccount)
 }
 
 // Helpers
